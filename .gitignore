@@ -1,0 +1,5 @@
+backend/.venv/
+backend/__pyacache__/
+backend/services/__pyacache__/
+backend/__pycache__/main.cpython-314.pyc
+backend/services/__pycache__/trip_service.cpython-314.pyc

@@ -24,3 +24,12 @@ def print_recommended_places():
   print("Recommended Places")
   for place in recommended_places:
     print(f"- {place}")
+
+def get_transportation_recommendation(category):
+    match category:
+        case "Backpacker":
+            return "Bus"
+        case "Standard":
+            return "Train"
+        case "Luxury":
+            return "Flight"
