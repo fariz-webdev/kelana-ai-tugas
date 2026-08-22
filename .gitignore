@@ -7,3 +7,4 @@ backend/__pycache__/main.cpython-314.pyc
 backend/services/__pycache__/trip_service.cpython-314.pyc
 backend/models/__pycache__/
 backend/__pycache__/database.cpython-314.pyc
+backend/services/__pycache__/bedrock_service.cpython-314.pyc
