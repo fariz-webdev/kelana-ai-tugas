@@ -29,8 +29,8 @@ def get_ai_recommendation(
     days: int,
     budget: float,
     travel_style: str,
-    daily_budget: float,
-    recommended_transport: str,
+    # daily_budget: float,
+    # recommended_transport: str,
     max_tokens: int = 1024,
     temperature: float = 0.7,
 ) -> str:
@@ -53,13 +53,13 @@ def get_ai_recommendation(
         f"Plan a {days}-day itinerary for {destination}.\n"
         f"Budget: USD {budget}\n"
         f"Travel Style: {travel_style}.\n"
-        f"Estimated daily budget: {daily_budget}.\n"
-        f"Transportation suggestions: {recommended_transport}.\n"
+        # f"Estimated daily budget: {daily_budget}.\n"
+        # f"Transportation suggestions: {recommended_transport}.\n"
         "For each day, please follow this exact structure:\n"
-        "- Morning Activities: Provide 2-3 engaging morning activities or location to start day.\n"
-        "- Afternoon Activities: Include recommendations for cultural sites and authenti local experiences.\n"
-        "- Evening Activities: Suggest top-rated dinner spots anda vibrant nightlife or evening entertainment options.\n"
-        "please include local food recommendations, best transportation options between each location and total estimated daily spend in USD and local currency for each day.\n"
+        "- Morning: Provide 2-3 engaging morning activities or location to start day.\n"
+        "- Afternoon: Include recommendations for cultural sites and authenti local experiences.\n"
+        "- Evening: Suggest top-rated dinner spots anda vibrant nightlife or evening entertainment options.\n"
+        "please include local food recommendations, best transportation options between each location and total estimated daily spend in USD for each day.\n"
         "Give the answer with markdown format."
     )
 

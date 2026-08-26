@@ -35,6 +35,7 @@
 # session 3  -> session 4
 
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from services.trip_service import (calculate_daily_budget, get_trip_category, get_transportation_recommendation)
 from models.trip import Trip
@@ -48,6 +49,14 @@ class TripRequest(BaseModel):
     travel_style:   str
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 init_db()
 
@@ -95,34 +104,43 @@ def transportations():
 def create_trip(request: TripRequest):
     daily_budget = calculate_daily_budget(request.budget, request.days)
     category = get_trip_category(request.budget)
-    recommended_transport = get_transportation_recommendation(category)
+    # recommended_transport = get_transportation_recommendation(category)
 
     ai_recommendation = get_ai_recommendation(
         destination=request.destination,
         days=request.days,
         budget=request.budget,
         travel_style=request.travel_style,
-        daily_budget=daily_budget,
-        recommended_transport=recommended_transport,
     )
 
-    # create a Trip ORM objec
     trip = Trip(
-        destination         = request.destination,
-        days                = request.days,
-        budget              = request.budget,
-        category            = category,
-        daily_budget        = daily_budget,
-        ai_recommendation   = ai_recommendation,
+        destination=request.destination,
+        days=request.days,
+        budget=request.budget,
+        category=category,
+        daily_budget=daily_budget,
+        ai_recommendation=ai_recommendation,
     )
 
-    # save to PostgreSQL
     db = SessionLocal()
     db.add(trip)
     db.commit()
     db.refresh(trip)
     db.close()
     return trip
+    
+    # return {
+    #     "id": trip.id,
+    #     "destination": trip.destination,
+    #     "days": trip.days,
+    #     "budget": trip.budget,
+    #     "category": trip.category,
+    #     "daily_budget": trip.daily_budget,
+    #     "travel_style": request.travel_style,
+    #     "recommended_transport": recommended_transport,
+    #     "ai_recommendation": trip.ai_recommendation,
+    #     "created_at": trip.created_at.isoformat() if trip.created_at else None,
+    # }
 
 # GET Endpoint --> List trips
 @app.get("/api/v1/trips")
