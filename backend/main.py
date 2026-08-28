@@ -41,6 +41,8 @@ from services.trip_service import (calculate_daily_budget, get_trip_category, ge
 from models.trip import Trip
 from database import SessionLocal, init_db
 from services.bedrock_service import get_ai_recommendation
+from dotenv import load_dotenv
+import os
 
 class TripRequest(BaseModel):
     destination:    str
@@ -52,7 +54,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=[os.getenv("FRONTEND_URL"),"http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -118,6 +120,7 @@ def create_trip(request: TripRequest):
         days=request.days,
         budget=request.budget,
         category=category,
+        travel_style=request.travel_style,
         daily_budget=daily_budget,
         ai_recommendation=ai_recommendation,
     )
@@ -129,18 +132,6 @@ def create_trip(request: TripRequest):
     db.close()
     return trip
     
-    # return {
-    #     "id": trip.id,
-    #     "destination": trip.destination,
-    #     "days": trip.days,
-    #     "budget": trip.budget,
-    #     "category": trip.category,
-    #     "daily_budget": trip.daily_budget,
-    #     "travel_style": request.travel_style,
-    #     "recommended_transport": recommended_transport,
-    #     "ai_recommendation": trip.ai_recommendation,
-    #     "created_at": trip.created_at.isoformat() if trip.created_at else None,
-    # }
 
 # GET Endpoint --> List trips
 @app.get("/api/v1/trips")

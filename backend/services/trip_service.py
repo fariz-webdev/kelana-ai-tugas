@@ -4,7 +4,7 @@ def get_trip_category(budget):
   if budget < 1000 :
     return "Backpacker"
   elif budget <= 3000 :
-    return "Standart"
+    return "Standard"
   else :
     return "Luxury"
 
