@@ -1,522 +1,6 @@
-// "use client";
-
-// import { Fragment, type ReactNode, useState } from "react";
-
-// type ViewState = "form" | "loading" | "result";
-
-// type TripForm = {
-//   destination: string;
-//   budget: string;
-//   days: string;
-//   travelStyle: string;
-// };
-
-// type RecommendationDay = {
-//   title: string;
-//   bullets: string[];
-//   total: string;
-// };
-
-// type RecommendationResult = {
-//   destination: string;
-//   travelStyle: string;
-//   budget: number;
-//   days: number;
-//   summary: string[];
-//   daysPlan: RecommendationDay[];
-//   aiText?: string;
-// };
-
-// const emptyForm: TripForm = {
-//   destination: "",
-//   budget: "",
-//   days: "",
-//   travelStyle: "",
-// };
-
-// function renderInlineMarkdown(text: string): ReactNode[] {
-//   const parts = text.split(/(\*\*.*?\*\*)/g);
-
-//   return parts.map((part, index) => {
-//     if (part.startsWith("**") && part.endsWith("**")) {
-//       return <strong key={`${part}-${index}`}>{part.slice(2, -2)}</strong>;
-//     }
-
-//     return <Fragment key={`${part}-${index}`}>{part}</Fragment>;
-//   });
-// }
-
-// function extractDayCards(
-//   text: string,
-// ): Array<{ title: string; content: ReactNode[] }> {
-//   const blocks: Array<{ title: string; content: ReactNode[] }> = [];
-//   const rawSections = text
-//     .split(/(?=^##?\s+Day\s+\d+)/m)
-//     .map((section) => section.trim())
-//     .filter(Boolean);
-
-//   if (rawSections.length === 0) {
-//     return [{ title: "Day 1", content: renderMarkdownContent(text) }];
-//   }
-
-//   rawSections.forEach((section, sectionIndex) => {
-//     const match = section.match(
-//       /^(?:##|#)?\s*(Day\s+\d+(?:[-–]\d+)?(?:\s*:\s*.*)?)\s*\n?/i,
-//     );
-//     const title = match?.[1]?.trim() || `Day ${sectionIndex + 1}`;
-//     const contentText = section.replace(match?.[0] ?? "", "").trim();
-
-//     blocks.push({
-//       title,
-//       content: contentText ? renderMarkdownContent(contentText) : [],
-//     });
-//   });
-
-//   return blocks;
-// }
-
-// function renderMarkdownContent(text: string): ReactNode[] {
-//   const lines = text.split(/\n/);
-//   const blocks: ReactNode[] = [];
-//   let listItems: string[] = [];
-
-//   const flushList = () => {
-//     if (listItems.length === 0) return;
-
-//     blocks.push(
-//       <ul
-//         key={`list-${blocks.length}`}
-//         className="mb-3 list-disc space-y-2 pl-6"
-//       >
-//         {listItems.map((item, index) => (
-//           <li key={`${item}-${index}`}>{renderInlineMarkdown(item)}</li>
-//         ))}
-//       </ul>,
-//     );
-
-//     listItems = [];
-//   };
-
-//   lines.forEach((line, index) => {
-//     const trimmed = line.trim();
-
-//     if (!trimmed) {
-//       flushList();
-//       return;
-//     }
-
-//     if (/^#{1,6}\s+/.test(trimmed)) {
-//       flushList();
-//       const headingLevel = Math.min(trimmed.match(/^#+/)?.[0].length ?? 1, 6);
-//       const title = trimmed.replace(/^#{1,6}\s+/, "");
-//       const headingClasses =
-//         headingLevel === 1
-//           ? "mb-3 mt-4 text-2xl font-bold text-[#1d97eb]"
-//           : headingLevel === 2
-//             ? "mb-3 mt-4 text-xl font-bold text-[#1d97eb]"
-//             : headingLevel === 3
-//               ? "mb-3 mt-4 text-lg font-bold text-[#1d97eb]"
-//               : "mb-3 mt-4 text-base font-bold text-[#1d97eb]";
-
-//       if (headingLevel === 1) {
-//         blocks.push(
-//           <h1 key={`heading-${index}`} className={headingClasses}>
-//             {renderInlineMarkdown(title)}
-//           </h1>,
-//         );
-//       } else if (headingLevel === 2) {
-//         blocks.push(
-//           <h2 key={`heading-${index}`} className={headingClasses}>
-//             {renderInlineMarkdown(title)}
-//           </h2>,
-//         );
-//       } else if (headingLevel === 3) {
-//         blocks.push(
-//           <h3 key={`heading-${index}`} className={headingClasses}>
-//             {renderInlineMarkdown(title)}
-//           </h3>,
-//         );
-//       } else {
-//         blocks.push(
-//           <h4 key={`heading-${index}`} className={headingClasses}>
-//             {renderInlineMarkdown(title)}
-//           </h4>,
-//         );
-//       }
-//       return;
-//     }
-
-//     if (/^[-*]\s+/.test(trimmed)) {
-//       listItems.push(trimmed.replace(/^[-*]\s+/, ""));
-//       return;
-//     }
-
-//     flushList();
-//     blocks.push(
-//       <p key={`paragraph-${index}`} className="mb-3 leading-7 text-[#2d3d4d]">
-//         {renderInlineMarkdown(trimmed)}
-//       </p>,
-//     );
-//   });
-
-//   flushList();
-
-//   return blocks;
-// }
-
-// function buildFallbackRecommendation(form: TripForm): RecommendationResult {
-//   const destination = form.destination || "Indonesia";
-//   const budget = Number(form.budget || 5000);
-//   const days = Number(form.days || 5);
-//   const travelStyle = form.travelStyle || "Business";
-
-//   return {
-//     destination,
-//     travelStyle,
-//     budget,
-//     days,
-//     summary: [
-//       `Destination: ${destination}`,
-//       `Business`,
-//       `Budget: USD ${budget.toLocaleString()}`,
-//     ],
-//     daysPlan: [
-//       {
-//         title: "Day 1: Arrival in Jakarta",
-//         bullets: [
-//           "Flight: Book a flight to Jakarta, Indonesia (approx. USD 1200).",
-//           "Accommodation: 4-star hotel in Jakarta (approx. USD 150/night x 6 nights = USD 900).",
-//           "Activities:",
-//           "Settle into the hotel.",
-//           "Attend any scheduled business meetings.",
-//           "Dinner at a local restaurant (approx. USD 30).",
-//         ],
-//         total: "Total Cost for Day 1: USD 1550",
-//       },
-//       {
-//         title: "Day 2-3: Jakarta",
-//         bullets: [
-//           "Activities:",
-//           "Visit business districts (e.g., Sudirman, Thamrin).",
-//           "Attend business meetings/conferences.",
-//           "Cultural visits (e.g., National Monument).",
-//           "Meals (approx. USD 40/day x 2 days = USD 80).",
-//         ],
-//         total: "Total Cost for Days 2-3: USD 480",
-//       },
-//       {
-//         title: "Day 4: Jakarta to Bali",
-//         bullets: [
-//           "Flight: Jakarta to Bali (approx. USD 100).",
-//           "Accommodation: 4-star hotel in Bali (approx. USD 120/night x 4 nights = USD 480).",
-//           "Activities:",
-//           "Attend business meetings/conferences in Bali.",
-//           "Explore local business hubs (e.g., Sanur, Kuta).",
-//         ],
-//         total: "Total Cost for Day 4: USD 600",
-//       },
-//       {
-//         title: "Day 5-7: Bali",
-//         bullets: [
-//           "Activities:",
-//           "Continue business meetings.",
-//           "Networking events.",
-//           "Cultural visits (e.g., Ubud, Tanah Lot).",
-//           "Meals (approx. USD 40/day x 3 days = USD 120).",
-//         ],
-//         total: "Total Cost for Days 5-7: USD 720",
-//       },
-//     ],
-//   };
-// }
-
-// export default function Home() {
-//   const [view, setView] = useState<ViewState>("form");
-//   const [form, setForm] = useState<TripForm>(emptyForm);
-//   const [result, setResult] = useState<RecommendationResult | null>(null);
-//   const [error, setError] = useState("");
-
-//   const handleChange = (
-//     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-//   ) => {
-//     const { name, value } = e.target;
-//     setForm((prev) => ({ ...prev, [name]: value }));
-//     if (error) setError("");
-//   };
-
-//   const handleSubmit = async (e: React.FormEvent) => {
-//     e.preventDefault();
-
-//     const destination = form.destination.trim();
-//     const budget = Number(form.budget);
-//     const days = Number(form.days);
-
-//     if (!destination || !form.travelStyle || !budget || !days) {
-//       setError("Please complete all fields before generating your itinerary.");
-//       setView("form");
-//       return;
-//     }
-
-//     setError("");
-//     setView("loading");
-
-//     try {
-//       const payload = {
-//         destination,
-//         budget,
-//         days,
-//         travel_style: form.travelStyle,
-//       };
-
-//       const response = await fetch("http://localhost:8000/api/v1/trips", {
-//         method: "POST",
-//         headers: {
-//           "Content-Type": "application/json",
-//         },
-//         body: JSON.stringify(payload),
-//       });
-
-//       if (!response.ok) {
-//         const errorText = await response.text();
-//         throw new Error(
-//           errorText || "Unable to generate the itinerary right now.",
-//         );
-//       }
-
-//       const data = await response.json();
-
-//       const normalizedResult = {
-//         destination: data.destination || destination,
-//         travelStyle: data.travel_style || form.travelStyle,
-//         budget: Number(data.budget ?? budget),
-//         days: Number(data.days ?? days),
-//         summary: [
-//           `Destination: ${data.destination || destination}`,
-//           data.travel_style || form.travelStyle,
-//           `Budget: USD ${(data.budget ?? budget).toLocaleString()}`,
-//         ],
-//         daysPlan: buildFallbackRecommendation(form).daysPlan,
-//         aiText: data.ai_recommendation || "",
-//       };
-
-//       setResult(normalizedResult);
-//       setView("result");
-//     } catch (err) {
-//       console.error(err);
-//       setError(
-//         "Failed to generate itinerary. Please check your input and try again.",
-//       );
-//       setResult(null);
-//       setView("form");
-//     }
-//   };
-
-//   const handleReset = () => {
-//     setForm(emptyForm);
-//     setResult(null);
-//     setError("");
-//     setView("form");
-//   };
-
-//   if (view === "loading") {
-//     return (
-//       <main className="flex min-h-screen items-center justify-center bg-[#dfe6eb] px-4">
-//         <div className="flex flex-col items-center justify-center gap-4 text-center">
-//           <div className="h-14 w-14 animate-spin rounded-full border-[5px] border-[#cfe5f5] border-t-[#1d98eb]" />
-//           <p className="text-xl font-medium text-[#2d4759]">
-//             Generating your itinerary...
-//           </p>
-//         </div>
-//       </main>
-//     );
-//   }
-
-//   if (view === "result") {
-//     const displayResult = result ?? buildFallbackRecommendation(form);
-
-//     return (
-//       <main className="flex min-h-screen justify-center bg-[#dfe6eb] px-4 py-8">
-//         <div className="w-full max-w-[760px]">
-//           <div className="mb-5 text-center">
-//             <h1 className="text-[3rem] font-bold tracking-tight text-[#1f9ce7]">
-//               KelanaAI
-//             </h1>
-//           </div>
-
-//           <div className="mb-5 flex items-center justify-center gap-4 rounded-[999px] bg-[#dfeaf4] px-6 py-3 text-[1.05rem] font-semibold text-[#2b3d4e] shadow-inner shadow-white/60">
-//             <span>
-//               <span className="font-bold">Destination:</span>{" "}
-//               {displayResult.destination}
-//             </span>
-//             <span className="h-6 w-px bg-[#a8b9c7]" />
-//             <span>{displayResult.travelStyle}</span>
-//             <span className="h-6 w-px bg-[#a8b9c7]" />
-//             <span>Budget: USD {displayResult.budget.toLocaleString()}</span>
-//           </div>
-
-//           <div className="rounded-[20px] bg-[#dfeaf4] p-5 shadow-inner shadow-white/60">
-//             <h2 className="mb-4 text-[1.15rem] font-bold uppercase tracking-[0.08em] text-[#1f9ce7]">
-//               AI Recommendation
-//             </h2>
-
-//             {displayResult.aiText ? (
-//               <div className="space-y-5">
-//                 {extractDayCards(displayResult.aiText).map((day) => (
-//                   <div
-//                     key={day.title}
-//                     className="rounded-[16px] bg-[#dbe7f2] p-4 shadow-inner shadow-white/50"
-//                   >
-//                     <h3 className="mb-3 text-[1.05rem] font-bold text-[#1d97eb]">
-//                       {day.title}
-//                     </h3>
-//                     <div className="text-[0.98rem] leading-7 text-[#2d3d4d]">
-//                       {day.content}
-//                     </div>
-//                   </div>
-//                 ))}
-//               </div>
-//             ) : (
-//               displayResult.daysPlan.map((day) => (
-//                 <div
-//                   key={day.title}
-//                   className="mb-5 rounded-[16px] bg-[#dbe7f2] p-4"
-//                 >
-//                   <h3 className="mb-3 text-[1.05rem] font-bold text-[#1d97eb]">
-//                     {day.title}
-//                   </h3>
-
-//                   <ul className="space-y-2 text-[0.98rem] leading-6 text-[#2d3d4d]">
-//                     {day.bullets.map((bullet, index) => (
-//                       <li key={`${day.title}-${index}`} className="flex gap-2">
-//                         <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-[#1f9ce7]" />
-//                         <span>{bullet}</span>
-//                       </li>
-//                     ))}
-//                   </ul>
-
-//                   <div className="mt-4 border-t border-[#b7c9d7] pt-3 text-[0.98rem] font-bold text-[#2f3d4d]">
-//                     {day.total}
-//                   </div>
-//                 </div>
-//               ))
-//             )}
-//           </div>
-
-//           <div className="mt-5 flex justify-center">
-//             <button
-//               type="button"
-//               onClick={handleReset}
-//               className="rounded-full border border-[#1d98eb] bg-transparent px-6 py-2 text-base font-medium text-[#1d98eb] transition hover:bg-[#eaf6ff]"
-//             >
-//               Plan another trip
-//             </button>
-//           </div>
-//         </div>
-//       </main>
-//     );
-//   }
-
-//   return (
-//     <main className="flex min-h-screen items-center justify-center bg-[#dfe6eb] px-4">
-//       <form
-//         onSubmit={handleSubmit}
-//         className="w-full max-w-[420px] rounded-[22px]"
-//       >
-//         {error ? (
-//           <div className="mb-4 rounded-lg border border-red-300 bg-red-100 px-3 py-2 text-sm text-red-700">
-//             {error}
-//           </div>
-//         ) : null}
-
-//         <div className="mb-7 text-center">
-//           <h1 className="text-[2.5rem] font-bold tracking-tight text-[#1f9ce7]">
-//             KelanaAI
-//           </h1>
-//           <p className="mt-1 text-[0.95rem] text-[#6c7b87]">
-//             Plan your next adventure
-//           </p>
-//         </div>
-
-//         <div className="space-y-4">
-//           <div className="rounded-xl bg-[#dfeaf4] px-4 py-3 shadow-inner shadow-white/60">
-//             <label className="mb-1 block text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-[#5b7386]">
-//               Destination
-//             </label>
-//             <input
-//               type="text"
-//               name="destination"
-//               value={form.destination}
-//               onChange={handleChange}
-//               placeholder="e.g. Japan"
-//               className="w-full border-0 bg-transparent text-[1.05rem] text-[#2f3d4d] placeholder:text-[#7a8b9a] focus:outline-none"
-//             />
-//           </div>
-
-//           <div className="rounded-xl bg-[#dfeaf4] px-4 py-3 shadow-inner shadow-white/60">
-//             <label className="mb-1 block text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-[#5b7386]">
-//               Budget (USD)
-//             </label>
-//             <input
-//               type="number"
-//               name="budget"
-//               value={form.budget}
-//               onChange={handleChange}
-//               placeholder="e.g. 2000"
-//               className="w-full border-0 bg-transparent text-[1.05rem] text-[#2f3d4d] placeholder:text-[#7a8b9a] focus:outline-none"
-//             />
-//           </div>
-
-//           <div className="rounded-xl bg-[#dfeaf4] px-4 py-3 shadow-inner shadow-white/60">
-//             <label className="mb-1 block text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-[#5b7386]">
-//               Days
-//             </label>
-//             <input
-//               type="number"
-//               name="days"
-//               value={form.days}
-//               onChange={handleChange}
-//               placeholder="e.g. 5"
-//               className="w-full border-0 bg-transparent text-[1.05rem] text-[#2f3d4d] placeholder:text-[#7a8b9a] focus:outline-none"
-//             />
-//           </div>
-
-//           <div className="rounded-xl bg-[#dfeaf4] px-4 py-3 shadow-inner shadow-white/60">
-//             <label className="mb-1 block text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-[#5b7386]">
-//               Travel Style
-//             </label>
-//             <select
-//               name="travelStyle"
-//               value={form.travelStyle}
-//               onChange={handleChange}
-//               className="w-full appearance-none border-0 bg-transparent text-[1rem] text-[#6f7a84] focus:outline-none"
-//             >
-//               <option value="" disabled>
-//                 Select a style
-//               </option>
-//               <option value="Adventure">Adventure</option>
-//               <option value="Luxury">Luxury</option>
-//               <option value="Relaxing">Relaxing</option>
-//               <option value="Cultural">Cultural</option>
-//               <option value="Backpacking">Backpacking</option>
-//               <option value="Business">Business</option>
-//             </select>
-//           </div>
-//         </div>
-
-//         <button
-//           type="submit"
-//           className="mt-6 w-full rounded-xl bg-[#1d98eb] px-4 py-3 text-base font-semibold text-white shadow-[0_6px_18px_rgba(29,152,235,0.35)] transition hover:bg-[#1889d8] focus:outline-none"
-//         >
-//           Generate AI Trip
-//         </button>
-//       </form>
-//     </main>
-//   );
-// }
-
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function Home() {
@@ -527,20 +11,45 @@ export default function Home() {
   const [travelStyle, setTravelStyle] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [authChecked, setAuthChecked] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+      router.replace("/login");
+    } else {
+      setAuthChecked(true);
+    }
+  }, [router]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
+    // try {
+    //   const res = await fetch("http://localhost:8000/api/v1/trips", {
+    //     method: "POST",
+    //     headers: { "Content-Type": "application/json" },
+    //     body: JSON.stringify({
+    //       destination,
+    //       days:         Number(days),
+    //       budget:       Number(budget),
+    //       travel_style: travelStyle,
+    //     }),
+    //   });
     try {
-      const res = await fetch("http://localhost:8000/api/v1/trips", {
+      const token = localStorage.getItem("access_token");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/trips`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({
-          destination,
-          days: Number(days),
+          destination: destination,
           budget: Number(budget),
+          days: Number(days),
           travel_style: travelStyle,
         }),
       });
@@ -562,6 +71,14 @@ export default function Home() {
   }
 
   /* ── Form view ───────────────────────────────────────────── */
+  if (!authChecked) {
+    return (
+      <main className="flex-1 flex items-center justify-center min-h-screen bg-white">
+        <div className="w-8 h-8 rounded-full border-4 border-blue-100 border-t-blue-500 animate-spin" />
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-white flex flex-col">
       {/* Hero section */}
