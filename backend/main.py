@@ -43,6 +43,7 @@ from models.trip import Trip
 from models.user import User
 from database import SessionLocal, init_db
 from services.bedrock_service import get_ai_recommendation
+from services.kb_service import retrieve_and_generate
 from services.auth_service import register_user, login_user, get_current_user
 from dotenv import load_dotenv
 import os
@@ -84,6 +85,9 @@ class LoginRequest(BaseModel):
         if "@" not in v or "." not in v.split("@")[-1]:
             raise ValueError("Invalid email address")
         return v.lower().strip()
+
+class AskRequest(BaseModel):
+    question: str
 
 
 app = FastAPI()
@@ -168,6 +172,18 @@ def me(current_user: User = Depends(get_current_user)):
         "email":       current_user.email,
         "created_at":  current_user.created_at,
         "total_trips": trip_count,
+    }
+
+@app.post("/api/v1/ask")
+def ask(request: AskRequest):
+    try:
+        result = retrieve_and_generate(request.question)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return {
+        "question": request.question,
+        "answer": result["answer"],
+        "source": result["source"],
     }
 
 # ── Protected trip endpoints ──────────────────────────────────────────────────
