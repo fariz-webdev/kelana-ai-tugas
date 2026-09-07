@@ -40,19 +40,22 @@ export default function Home() {
     //   });
     try {
       const token = localStorage.getItem("access_token");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/trips`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/trips`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify({
+            destination: destination,
+            budget: Number(budget),
+            days: Number(days),
+            travel_style: travelStyle,
+          }),
         },
-        body: JSON.stringify({
-          destination: destination,
-          budget: Number(budget),
-          days: Number(days),
-          travel_style: travelStyle,
-        }),
-      });
+      );
 
       if (!res.ok) {
         const err = await res.json();

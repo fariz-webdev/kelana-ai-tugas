@@ -19,7 +19,7 @@ function authHeaders(token: string): Record<string, string> {
 }
 
 export async function getTrips(token: string): Promise<Trip[]> {
-  const res = await fetch(`${API_URL}/trips`, {
+  const res = await fetch(`${API_URL}/api/v1/trips`, {
     headers: authHeaders(token),
   });
   if (!res.ok) {
@@ -28,7 +28,7 @@ export async function getTrips(token: string): Promise<Trip[]> {
   return res.json();
 }
 export async function getTrip(id: number, token: string): Promise<Trip> {
-  const res = await fetch(`${API_URL}/trips/${id}`, {
+  const res = await fetch(`${API_URL}/api/v1/trips/${id}`, {
     headers: authHeaders(token),
   });
   if (!res.ok) {
@@ -39,7 +39,7 @@ export async function getTrip(id: number, token: string): Promise<Trip> {
   return res.json();
 }
 export async function generateTrip(data: any) {
-  const res = await fetch(`${API_URL}/trips`, {
+  const res = await fetch(`${API_URL}/api/v1/trips`, {
     method: "POST",
     body: JSON.stringify(data),
   });
