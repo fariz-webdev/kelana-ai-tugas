@@ -3,6 +3,18 @@
 import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { useRouter } from "next/navigation";
+import {
+  Bot,
+  ExternalLink,
+  Loader2,
+  MessageSquareText,
+  SendHorizonal,
+  Sparkles,
+} from "lucide-react";
+import { AuroraBackground } from "@/components/velora/aurora-background";
+import { BlurFade } from "@/components/velora/blur-fade";
+import { AnimatedGradientText } from "@/components/velora/animated-gradient-text";
+import { ShimmerButton } from "@/components/velora/shimmer-button";
 import { askAssistant, type AskResponse } from "@/services/assistantService";
 
 export default function AssistantPage() {
@@ -15,14 +27,19 @@ export default function AssistantPage() {
   const [error, setError] = useState<string | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
 
-  // Guard: redirect to login if no token
   useEffect(() => {
     const token = localStorage.getItem("access_token");
     if (!token) {
       router.replace("/login");
-    } else {
-      setAuthChecked(true);
+      return;
     }
+
+    const timer = window.setTimeout(() => {
+      setAuthChecked(true);
+      inputRef.current?.focus();
+    }, 0);
+
+    return () => window.clearTimeout(timer);
   }, [router]);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -53,165 +70,164 @@ export default function AssistantPage() {
 
   if (!authChecked) {
     return (
-      <main className="flex-1 flex items-center justify-center min-h-screen bg-white">
-        <div className="w-8 h-8 rounded-full border-4 border-blue-100 border-t-blue-500 animate-spin" />
+      <main className="flex min-h-screen items-center justify-center bg-[var(--background)]">
+        <Loader2 className="h-8 w-8 animate-spin text-[var(--brand-to)]" />
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-white px-4 py-10">
-      <div className="max-w-2xl mx-auto">
-        {/* Page heading */}
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Ask KelanaAI</h1>
-          <p className="text-sm text-gray-400 mt-1">
-            Powered by your trusted travel documents
+    <main className="relative min-h-screen overflow-hidden bg-[var(--background)] text-[var(--foreground)]">
+      <AuroraBackground intensity="vivid" />
+
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-[0.03]"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+        }}
+      />
+
+      <div className="relative z-10 mx-auto flex min-h-screen max-w-5xl flex-col px-4 pb-16 pt-10 sm:px-6 lg:px-8">
+        <BlurFade delay={0.05} className="mb-8 text-center">
+          <span className="inline-flex items-center gap-2 rounded-full border border-[var(--brand-from)]/40 bg-[var(--brand-from)]/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--brand-to)]">
+            <Sparkles className="h-3.5 w-3.5" />
+            AI Travel Assistant
+          </span>
+
+          <h1 className="mt-5 text-4xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl">
+            Ask <AnimatedGradientText>KelanaAI</AnimatedGradientText>
+          </h1>
+
+          <p className="mx-auto mt-4 max-w-xl text-sm text-[var(--muted-foreground)] sm:text-base">
+            Discover travel recommendations, trip plans, and answers from your
+            travel documents in a single conversation.
           </p>
-        </div>
+        </BlurFade>
 
-        {/* Search bar */}
-        <form onSubmit={handleSubmit} className="flex gap-2 mb-6">
-          <input
-            ref={inputRef}
-            type="text"
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
-            placeholder="Ask Everything about your trip plan..."
-            disabled={loading}
-            className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3
-                       text-sm text-gray-700 placeholder-gray-400 outline-none
-                       focus:ring-2 focus:ring-blue-300 focus:border-transparent
-                       disabled:opacity-60 transition"
-          />
-          <button
-            type="submit"
-            disabled={loading || !question.trim()}
-            className="bg-blue-500 hover:bg-blue-600 active:bg-blue-700
-                       disabled:opacity-50 disabled:cursor-not-allowed
-                       text-white text-sm font-semibold px-5 py-3 rounded-xl
-                       transition-colors flex items-center gap-2"
-          >
-            {loading ? (
-              <svg
-                className="animate-spin h-4 w-4 text-white"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                />
-              </svg>
-            ) : (
-              "Ask"
-            )}
-          </button>
-        </form>
+        <BlurFade delay={0.12} className="mx-auto w-full max-w-3xl">
+          <div className="rounded-[2rem] border border-white/10 bg-[var(--card)]/70 p-3 shadow-2xl shadow-black/40 backdrop-blur-xl ring-1 ring-white/5">
+            <form
+              onSubmit={handleSubmit}
+              className="rounded-[1.5rem] border border-[var(--border)] bg-[var(--surface-1)]/90 p-3"
+            >
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                <div className="flex flex-1 items-center gap-3 rounded-2xl border border-[var(--border)] bg-[var(--surface-2)]/80 px-4 py-3 shadow-inner shadow-black/10">
+                  <MessageSquareText className="h-4 w-4 text-[var(--brand-to)]" />
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    value={question}
+                    onChange={(e) => setQuestion(e.target.value)}
+                    placeholder="Ask anything about your trip..."
+                    disabled={loading}
+                    className="w-full bg-transparent text-sm text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] outline-none disabled:cursor-not-allowed"
+                  />
+                </div>
 
-        {/* Error state */}
+                <ShimmerButton
+                  type="submit"
+                  disabled={loading || !question.trim()}
+                  className="h-[52px] rounded-2xl px-5 text-sm sm:w-auto"
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span>Processing</span>
+                    </>
+                  ) : (
+                    <>
+                      <SendHorizonal className="h-4 w-4" />
+                      <span>Ask</span>
+                    </>
+                  )}
+                </ShimmerButton>
+              </div>
+            </form>
+          </div>
+        </BlurFade>
+
         {error && (
-          <div className="p-4 bg-red-50 border border-red-200 rounded-2xl text-red-600 text-sm">
-            {error}
-          </div>
+          <BlurFade delay={0.15} className="mx-auto mt-6 w-full max-w-3xl">
+            <div className="rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+              {error}
+            </div>
+          </BlurFade>
         )}
 
-        {/* Answer card */}
         {result && (
-          <div className="overflow-hidden rounded-3xl border border-teal-200 bg-gradient-to-br from-teal-700 via-teal-700 to-cyan-700 shadow-[0_16px_40px_rgba(13,148,136,0.2)]">
-            {/* Answer section */}
-            <div className="px-6 pt-6 pb-5">
-              <div className="mb-4 flex items-center justify-between gap-3">
-                <p className="text-xs font-bold tracking-[0.2em] text-teal-100 uppercase">
-                  AI Answer
-                </p>
-                <span className="rounded-full border border-white/20 bg-white/5 px-2.5 py-1 text-[10px] font-medium text-teal-50">
-                  Live result
-                </span>
+          <BlurFade delay={0.18} className="mx-auto mt-8 w-full max-w-3xl">
+            <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-[var(--card)]/80 shadow-[0_24px_70px_rgba(59,60,120,0.45)] backdrop-blur-xl">
+              <div className="px-5 pb-5 pt-5 sm:px-6 sm:pb-6">
+                <div className="mb-4 flex items-center justify-between gap-3">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-[var(--brand-from)]/40 bg-[var(--brand-from)]/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--brand-to)]">
+                    <Bot className="h-3.5 w-3.5" />
+                    AI Answer
+                  </div>
+                  <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-medium text-white/80">
+                    Live result
+                  </span>
+                </div>
+
+                <div className="markdown-content">
+                  <ReactMarkdown>{result.answer}</ReactMarkdown>
+                </div>
               </div>
-              <div className="markdown-content">
-                <ReactMarkdown>{result.answer}</ReactMarkdown>
-              </div>
+
+              {result.source.length > 0 && (
+                <div className="border-t border-white/10 bg-[var(--surface-1)]/80 px-5 py-4 sm:px-6">
+                  <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--brand-to)]">
+                    Source
+                  </p>
+                  <ul className="space-y-2.5">
+                    {result.source.map((source, i) => {
+                      const title =
+                        source.metadata?._document_title ??
+                        source.document_id ??
+                        `Document ${i + 1}`;
+                      const href =
+                        source.metadata?._source_uri ??
+                        source.location?.s3Location?.uri ??
+                        source.document_id ??
+                        "#";
+
+                      return (
+                        <li key={`${title}-${i}`} className="flex min-w-0 items-center gap-2">
+                          <ExternalLink className="h-4 w-4 shrink-0 text-[var(--brand-to)]" />
+                          <a
+                            href={href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="truncate text-sm text-white/80 underline decoration-white/30 underline-offset-4 transition-colors hover:text-white"
+                            title={title}
+                          >
+                            {title}
+                          </a>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              )}
             </div>
-
-            {/* Divider */}
-            {result.source.length > 0 && (
-              <div className="border-t border-teal-600 mx-6" />
-            )}
-
-            {/* Sources section */}
-            {result.source.length > 0 && (
-              <div className="border-t border-white/10 bg-teal-800/20 px-6 py-4">
-                <p className="mb-3 text-xs font-bold tracking-[0.2em] text-teal-100 uppercase">
-                  Source
-                </p>
-                <ul className="space-y-2">
-                  {result.source.map((source, i) => {
-                    const title =
-                      source.metadata?._document_title ??
-                      source.document_id ??
-                      `Document ${i + 1}`;
-                    const href =
-                      source.metadata?._source_uri ??
-                      source.location?.s3Location?.uri ??
-                      source.document_id ??
-                      "#";
-
-                    return (
-                      <li
-                        key={`${title}-${i}`}
-                        className="flex items-center gap-2 min-w-0"
-                      >
-                        <svg
-                          className="w-4 h-4 text-teal-300 flex-shrink-0"
-                          fill="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" />
-                        </svg>
-                        <a
-                          href={href}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-sm text-teal-100 hover:text-white underline underline-offset-2 transition-colors truncate"
-                          title={title}
-                        >
-                          {title}
-                        </a>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-            )}
-          </div>
+          </BlurFade>
         )}
 
-        {/* Empty state — before any question */}
         {!result && !error && !loading && (
-          <div className="flex flex-col items-center justify-center py-20 text-center">
-            <div className="w-12 h-12 rounded-xl bg-teal-50 flex items-center justify-center text-teal-500 mb-4">
-              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z" />
-              </svg>
+          <BlurFade delay={0.16} className="mx-auto mt-8 w-full max-w-3xl">
+            <div className="rounded-[2rem] border border-[var(--border)] bg-[var(--card)]/55 px-6 py-16 text-center shadow-xl shadow-black/20 backdrop-blur-xl">
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-[var(--brand-from)]/30 bg-[var(--brand-from)]/10 text-[var(--brand-to)]">
+                <Sparkles className="h-6 w-6" />
+              </div>
+              <p className="text-base font-semibold text-white">
+                Ask anything about travel
+              </p>
+              <p className="mx-auto mt-2 max-w-md text-sm text-[var(--muted-foreground)]">
+                KelanaAI will answer based on the travel documents you have as
+                source references.
+              </p>
             </div>
-            <p className="text-gray-700 font-semibold text-base mb-1">
-              Ask anything about travel
-            </p>
-            <p className="text-gray-400 text-sm max-w-xs">
-              KelanaAI will answer using your trusted travel documents as the
-              source.
-            </p>
-          </div>
+          </BlurFade>
         )}
       </div>
     </main>
